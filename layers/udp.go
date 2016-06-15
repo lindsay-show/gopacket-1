@@ -35,6 +35,7 @@ func (udp *UDP) DecodeFromBytes(data []byte, df gopacket.DecodeFeedback) error {
 	udp.Checksum = binary.BigEndian.Uint16(data[6:8])
 	udp.BaseLayer = BaseLayer{Contents: data[:8]}
 	switch {
+	// udp head length：8
 	case udp.Length >= 8:
 		hlen := int(udp.Length)
 		if hlen > len(data) {

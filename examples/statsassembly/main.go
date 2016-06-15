@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-var iface = flag.String("i", "eth0", "Interface to get packets from")
+var iface = flag.String("i", "en0", "Interface to get packets from")
 var snaplen = flag.Int("s", 65536, "SnapLen for pcap packet capture")
 var filter = flag.String("f", "tcp", "BPF filter for pcap")
 var logAllPackets = flag.Bool("v", false, "Log whenever we see a packet")

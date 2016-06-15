@@ -100,8 +100,9 @@ func (arp *ARP) NextLayerType() gopacket.LayerType {
 	return gopacket.LayerTypePayload
 }
 
-func decodeARP(data []byte, p gopacket.PacketBuilder) error {
+/*func decodeARP(data []byte, p gopacket.PacketBuilder) error {
 
 	arp := &ARP{}
 	return decodingLayerDecoder(arp, data, p)
 }
+*/

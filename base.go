@@ -44,6 +44,7 @@ func (p Payload) NextLayerType() LayerType { return LayerTypeZero }
 func (p *Payload) DecodeFromBytes(data []byte, df DecodeFeedback) error {
 	*p = Payload(data)
 	return nil
+
 }
 
 // SerializeTo writes the serialized form of this layer into the
@@ -134,6 +135,7 @@ type TransportLayer interface {
 
 // ApplicationLayer is the packet layer corresponding to the TCP/IP layer 4 (OSI
 // layer 7), also known as the packet payload.
+// decoding for applicationlayer by xiaomeng
 type ApplicationLayer interface {
 	Layer
 	Payload() []byte

@@ -55,7 +55,6 @@ func Run(src gopacket.PacketDataSource) {
 	for packet := range source.Packets() {
 		count++
 		bytes += int64(len(packet.Data()))
-
 		// defrag the IPv4 packet if required
 		if *defrag {
 			ip4Layer := packet.Layer(layers.LayerTypeIPv4)

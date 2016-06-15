@@ -681,7 +681,8 @@ type PacketDataSource interface {
 	//  ci:  Metadata about the capture
 	//  err:  An error encountered while reading packet data.  If err != nil,
 	//    then data/ci will be ignored.
-	ReadPacketData() (data []byte, ci CaptureInfo, err error)
+	ReadPacket
+	Data() (data []byte, ci CaptureInfo, err error)
 }
 
 // ZeroCopyPacketDataSource is an interface to pull packet data from sources
