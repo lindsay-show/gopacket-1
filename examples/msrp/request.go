@@ -32,6 +32,7 @@ type Request struct {
 	Body          io.ReadCloser
 	ContentLength int64
 	Close         bool
+	Response      *Response
 
 	//  Header = map[string][]string{
 	//     "To-Path": {msrp://1.1.0.10:51272/95521545,tcp}

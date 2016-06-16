@@ -28,7 +28,7 @@ import (
 var iface = flag.String("i", "en0", "Interface to get packets from")
 var fname = flag.String("r", "", "Filename to read from, overrides -i")
 var snaplen = flag.Int("s", 1600, "SnapLen for pcap packet capture")
-var filter = flag.String("f", "tcp port 80", "BPF filter for pcap")
+var filter = flag.String("f", "tcp and port 80", "BPF filter for pcap")
 var logAllPackets = flag.Bool("v", false, "Logs every packet in great detail")
 
 // Build a simple HTTP request parser using tcpassembly.StreamFactory and tcpassembly.Stream interfaces
@@ -61,16 +61,14 @@ func (h *httpStream) run() {
 			// We must read until we see an EOF... very important!
 			return
 		} else if req != nil {
-			/*reqbodyBytes := tcpreader.DiscardBytesToEOF(req.Body)
-			req.Body.Close()
-			log.Println("Received request from stream", h.net, h.transport, ":", req, "with", reqbodyBytes, "bytes in request body")*/
-			//log.Println("Received request from stream", h.net, h.transport)
+
 			fmt.Println(color.Green("Request:"))
-			fmt.Println(req.Method, req.RequestURI, req.Proto)
-			for header, value := range req.Header {
-				for _, subvalue := range value {
-					fmt.Printf("%s:%s\n", header, subvalue)
+			fmt.Println(color.Blue(req.Method), req.RequestURI, req.Proto)
+			for headerName, headerContext := range req.Header {
+				for _, subheaderContext := range headerContext {
+					fmt.Printf("%s: %s\n", color.Blue(headerName), subheaderContext)
 				}
+
 			}
 		}
 		resp, resperr := http.ReadResponse(buf, req)
@@ -78,31 +76,17 @@ func (h *httpStream) run() {
 			// We must read until we see an EOF... very important!
 			return
 		} else if resp != nil {
-			/*respbodyBytes := tcpreader.DiscardBytesToEOF(resp.Body)
-			resp.Body.Close()
-			log.Println("Received response from stream", h.net, h.transport, ":", resp, "with", respbodyBytes, "bytes in request body")*/
-			//log.Println("Received response from stream", h.net, h.transport)
-			fmt.Println(color.Blue("Response:"))
-			fmt.Println(resp.Proto, resp.Status)
-			for header, value := range resp.Header {
-				for _, subvalue := range value {
-					fmt.Printf("%s:%s\n", header, subvalue)
+
+			fmt.Println(color.Green("Response:"))
+			fmt.Println(resp.Proto, color.Blue(resp.Status))
+			for headerName, headerContext := range req.Header {
+				for _, subheaderContext := range headerContext {
+					fmt.Printf("%s: %s\n", color.Blue(headerName), subheaderContext)
 				}
+
 			}
 
 		}
-		// http request
-		/*req, err := http.ReadRequest(buf)
-		if err == io.EOF {
-			// We must read until we see an EOF... very important!
-			return
-		} else if err != nil {
-			log.Println("Error reading stream", h.net, h.transport, ":", err)
-		} else {
-			bodyBytes := tcpreader.DiscardBytesToEOF(req.Body)
-			req.Body.Close()
-			log.Println("Received request from stream", h.net, h.transport, ":", req, "with", bodyBytes, "bytes in request body")
-		}*/
 
 	}
 }

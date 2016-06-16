@@ -75,15 +75,14 @@ func printPacketInfo(packet gopacket.Packet) {
 	for i := 0; i < len(tvi); i++ {
 		b := bufio.NewReader(strings.NewReader(tvi[i]))
 		msg, _ := sip.ReadMessage(b)
-		fmt.Println("MessageHeader")
+		fmt.Println("MessageHeader:")
 		headermap := msg.GetHeader()
 		for header, value := range headermap {
 			for _, subvalue := range value {
 				fmt.Printf("%s:%s\n", header, subvalue)
 			}
 		}
-		//fmt.Println(msg.GetHeader())
-		fmt.Println("MessageBody")
+		fmt.Println("MessageBody:")
 		fmt.Println(msg.GetBody())
 	}
 
