@@ -11,7 +11,9 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/examples/color"
 	"github.com/google/gopacket/examples/util"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
@@ -53,21 +55,54 @@ func (h *httpStreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream
 func (h *httpStream) run() {
 	buf := bufio.NewReader(&h.r)
 	for {
+		// http request and response
 		req, err := http.ReadRequest(buf)
 		if err == io.EOF {
 			// We must read until we see an EOF... very important!
 			return
 		} else if req != nil {
-			log.Println("Received request from stream", h.net, h.transport, ":", req)
+			/*reqbodyBytes := tcpreader.DiscardBytesToEOF(req.Body)
+			req.Body.Close()
+			log.Println("Received request from stream", h.net, h.transport, ":", req, "with", reqbodyBytes, "bytes in request body")*/
+			//log.Println("Received request from stream", h.net, h.transport)
+			fmt.Println(color.Green("Request:"))
+			fmt.Println(req.Method, req.RequestURI, req.Proto)
+			for header, value := range req.Header {
+				for _, subvalue := range value {
+					fmt.Printf("%s:%s\n", header, subvalue)
+				}
+			}
 		}
 		resp, resperr := http.ReadResponse(buf, req)
 		if resperr == io.EOF {
 			// We must read until we see an EOF... very important!
 			return
 		} else if resp != nil {
-			log.Println("Received response from stream", h.net, h.transport, ":", resp)
+			/*respbodyBytes := tcpreader.DiscardBytesToEOF(resp.Body)
+			resp.Body.Close()
+			log.Println("Received response from stream", h.net, h.transport, ":", resp, "with", respbodyBytes, "bytes in request body")*/
+			//log.Println("Received response from stream", h.net, h.transport)
+			fmt.Println(color.Blue("Response:"))
+			fmt.Println(resp.Proto, resp.Status)
+			for header, value := range resp.Header {
+				for _, subvalue := range value {
+					fmt.Printf("%s:%s\n", header, subvalue)
+				}
+			}
 
 		}
+		// http request
+		/*req, err := http.ReadRequest(buf)
+		if err == io.EOF {
+			// We must read until we see an EOF... very important!
+			return
+		} else if err != nil {
+			log.Println("Error reading stream", h.net, h.transport, ":", err)
+		} else {
+			bodyBytes := tcpreader.DiscardBytesToEOF(req.Body)
+			req.Body.Close()
+			log.Println("Received request from stream", h.net, h.transport, ":", req, "with", bodyBytes, "bytes in request body")
+		}*/
 
 	}
 }

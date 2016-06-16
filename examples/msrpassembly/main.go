@@ -12,15 +12,16 @@ package main
 import (
 	"bufio"
 	"flag"
-	//"fmt"
+	"fmt"
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/examples/color"
 	"github.com/google/gopacket/examples/msrp"
 	"github.com/google/gopacket/examples/util"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/tcpassembly"
 	"github.com/google/gopacket/tcpassembly/tcpreader"
-	//"io"
+	"io"
 	"log"
 	"time"
 )
@@ -28,7 +29,7 @@ import (
 var iface = flag.String("i", "en0", "Interface to get packets from")
 var fname = flag.String("r", "", "Filename to read from, overrides -i")
 var snaplen = flag.Int("s", 1600, "SnapLen for pcap packet capture")
-var filter = flag.String("f", "tcp and portrange 20000-65535 ", "BPF filter for pcap")
+var filter = flag.String("f", "tcp port 51273 ", "BPF filter for pcap")
 var logAllPackets = flag.Bool("v", false, "Logs every packet in great detail")
 
 // Build a simple MSRP request parser using tcpassembly.StreamFactory and tcpassembly.Stream interfaces
@@ -42,38 +43,6 @@ type msrpStreamHandler struct {
 	r              tcpreader.ReaderStream
 }
 
-func (m *msrpStreamHandler) run() {
-	// Do something here that reads all of the ReaderStream, or your assembly
-	buf := bufio.NewReader(&m.r)
-	for {
-		/*req, err := msrp.ReadRequest(buf)
-		if err != nil {
-			log.Println("Error reading stream", m.net, m.transport, ":", err)
-		} else {
-			//reqbodyBytes := tcpreader.DiscardBytesToEOF(req.Body)
-			//req.Body.Close()
-			log.Println("Received request from stream", m.net, m.transport, ":", req)
-			//log.Println("Received request from stream", m.net, m.transport, ":", req, "with", reqbodyBytes, "bytes in request body")
-		}*/
-		req, err := msrp.ReadRequest(buf)
-		if err == io.EOF {
-			// We must read until we see an EOF... very important!
-			return
-		} else if req != nil {
-			log.Println("Received request from stream", m.net, m.transport, ":", req)
-		}
-		resp, resperr := msrp.ReadResponse(buf, req)
-		if resperr == io.EOF {
-			// We must read until we see an EOF... very important!
-			return
-		} else if resp != nil {
-			log.Println("Received response from stream", m.net, m.transport, ":", resp)
-
-		}
-
-	}
-}
-
 func (m *msrpStreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream {
 	msrpstream := &msrpStreamHandler{
 		net:       net,
@@ -84,6 +53,54 @@ func (m *msrpStreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream
 
 	// ReaderStream implements tcpassembly.Stream, so we can return a pointer to it.
 	return &msrpstream.r
+}
+func (m *msrpStreamHandler) run() {
+	// Do something here that reads all of the ReaderStream, or your assembly
+	buf := bufio.NewReader(&m.r)
+	for {
+		// msrp request and response
+		req, err := msrp.ReadRequest(buf)
+		if err == io.EOF {
+			// We must read until we see an EOF... very important!
+			return
+		} else if req != nil {
+			//log.Println("Received request from stream", m.net, m.transport)
+			fmt.Println(color.Green("Request:"))
+			fmt.Println(req.Proto, "", req.TranscitonID, "", req.Method)
+			for header, value := range req.Header {
+				for _, subvalue := range value {
+					fmt.Printf("%s:%s\n", header, subvalue)
+				}
+			}
+		}
+		resp, resperr := msrp.ReadResponse(buf, req)
+		if resperr == io.EOF {
+			// We must read until we see an EOF... very important!
+			return
+		} else if resp != nil {
+			//log.Println("Received response from stream", m.net, m.transport)
+			fmt.Println(color.Blue("Response:"))
+			fmt.Println(resp.Proto, resp.TranscitonID, resp.Status)
+			for header, value := range resp.Header {
+				for _, subvalue := range value {
+					fmt.Printf("%s:%s\n", header, subvalue)
+				}
+			}
+
+		}
+		// msrp request
+		/*req, err := msrp.ReadRequest(buf)
+		if err == io.EOF {
+			// We must read until we see an EOF... very important!
+			return
+		} else if err != nil {
+			log.Println("Error reading stream", m.net, m.transport, ":", err)
+		} else {
+			bodyBytes := tcpreader.DiscardBytesToEOF(req.Body)
+			req.Body.Close()
+			log.Println("Received request from stream", m.net, m.transport, ":", req, "with", bodyBytes, "bytes in request body")
+		}*/
+	}
 }
 
 func main() {
