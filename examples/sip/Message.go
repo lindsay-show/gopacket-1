@@ -171,16 +171,16 @@ func ReadMessage(b *bufio.Reader) (msg Message, err error) {
 			return nil, fmt.Errorf("malformed SIP version", sipVersion)
 		}
 		msg = NewResponse(statusCode, reasonPhrase, nil)
-		fmt.Println(color.Blue("Response"))
-		fmt.Println("Status-Line:", s)
+		fmt.Println(color.Green("Response:"))
+		fmt.Println(s)
 	} else {
 		method, requestURI, sipVersion := s[:s1], s[s1+1:s2], s[s2+1:]
 		if _, _, ok := ParseSIPVersion(sipVersion); !ok {
 			return nil, fmt.Errorf("malformed SIP version", sipVersion)
 		}
 		msg = NewRequest(method, requestURI, nil)
-		fmt.Println(color.Green("Request"))
-		fmt.Println("Request-Line:", s)
+		fmt.Println(color.Green("Request:"))
+		fmt.Println(s)
 	}
 
 	////////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,7 @@ package main
 import (
 	"flag"
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/examples/color"
 	"github.com/google/gopacket/examples/sip"
 	"github.com/google/gopacket/examples/util"
 	//"github.com/google/gopacket/layers"
@@ -75,14 +76,13 @@ func printPacketInfo(packet gopacket.Packet) {
 	for i := 0; i < len(tvi); i++ {
 		b := bufio.NewReader(strings.NewReader(tvi[i]))
 		msg, _ := sip.ReadMessage(b)
-		fmt.Println("MessageHeader:")
-		headermap := msg.GetHeader()
-		for header, value := range headermap {
-			for _, subvalue := range value {
-				fmt.Printf("%s:%s\n", header, subvalue)
+		//fmt.Println("MessageHeader:")
+		for headerName, headerContext := range msg.GetHeader() {
+			for _, subheaderContext := range headerContext {
+				fmt.Printf("%s: %s\n", color.Blue(headerName), subheaderContext)
 			}
 		}
-		fmt.Println("MessageBody:")
+		//fmt.Println("MessageBody:")
 		fmt.Println(msg.GetBody())
 	}
 
