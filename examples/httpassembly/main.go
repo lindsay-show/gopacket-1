@@ -79,7 +79,7 @@ func (h *httpStream) run() {
 
 			fmt.Println(color.Green("Response:"))
 			fmt.Println(resp.Proto, color.Blue(resp.Status))
-			for headerName, headerContext := range req.Header {
+			for headerName, headerContext := range resp.Header {
 				for _, subheaderContext := range headerContext {
 					fmt.Printf("%s: %s\n", color.Blue(headerName), subheaderContext)
 				}
