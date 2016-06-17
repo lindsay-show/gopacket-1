@@ -8,8 +8,8 @@ package msrp
 import (
 	"bufio"
 	"io"
+	//"log"
 	"net/textproto"
-
 	"strconv"
 	"strings"
 )
@@ -18,7 +18,7 @@ import (
 type Response struct {
 	Proto        string // e.g. "MSRP
 	TranscitonID string
-	Status       string // e.g. "200 OK"
+	Status       string // e.g. "200 OK" "200 Report recevied"
 	StatusCode   int    // e.g. 200
 
 	Header Header
@@ -48,12 +48,17 @@ func ReadResponse(r *bufio.Reader, req *Request) (resp *Response, err error) {
 		}
 		return nil, err
 	}
-	f := strings.SplitN(line, " ", 4)
+	f := strings.SplitN(line, " ", 5)
+	if f[0] != "MSRP" {
+		return nil, &badStringError{"malformed MSRP version", f[0]}
+	}
 	if len(f) < 3 {
 		return nil, &badStringError{"malformed MSRP response", line}
 	}
 	reasonPhrase := ""
-	if len(f) > 3 {
+	if len(f) > 4 {
+		reasonPhrase = f[3] + " " + f[4]
+	} else if len(f) > 3 {
 		reasonPhrase = f[3]
 	}
 	resp.Status = f[2] + " " + reasonPhrase
@@ -64,8 +69,9 @@ func ReadResponse(r *bufio.Reader, req *Request) (resp *Response, err error) {
 	}
 	resp.Proto = f[0]
 	resp.TranscitonID = f[1]
+	//log.Println("test:", resp.Proto, resp.TranscitonID, resp.Status)
 	// Parse the response headers.
-	mimeHeader, err := tp.ReadMIMEHeader()
+	mimeHeader, _ := tp.ReadMIMEHeader()
 	if err != nil {
 		if err == io.EOF {
 			err = io.ErrUnexpectedEOF

@@ -29,7 +29,7 @@ import (
 var iface = flag.String("i", "en0", "Interface to get packets from")
 var fname = flag.String("r", "", "Filename to read from, overrides -i")
 var snaplen = flag.Int("s", 1600, "SnapLen for pcap packet capture")
-var filter = flag.String("f", "tcp", "BPF filter for pcap")
+var filter = flag.String("f", "tcp port 51273", "BPF filter for pcap")
 var logAllPackets = flag.Bool("v", false, "Logs every packet in great detail")
 
 // Build a simple MSRP request parser using tcpassembly.StreamFactory and tcpassembly.Stream interfaces
@@ -81,7 +81,7 @@ func (m *msrpStreamHandler) run() {
 			//log.Println("Received response from stream", m.net, m.transport)
 			fmt.Println(color.Green("Response:"))
 			fmt.Println(resp.Proto, resp.TranscitonID, color.Blue(resp.Status))
-			for headerName, headerContext := range req.Header {
+			for headerName, headerContext := range resp.Header {
 				for _, subheaderContext := range headerContext {
 					fmt.Printf("%s: %s\n", color.Blue(headerName), subheaderContext)
 				}

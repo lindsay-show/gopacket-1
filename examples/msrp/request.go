@@ -70,7 +70,7 @@ func NewRequest(method string, body io.Reader) (*Request, error) {
 }
 
 // parseRequestLine parses "MSRP 95529209 SEND" into its three parts.
-func parseRequestLine(line string) (method, transactionID, proto string, ok bool) {
+func parseRequestLine(line string) (proto, transactionID, method string, ok bool) {
 	s1 := strings.Index(line, " ")
 	s2 := strings.Index(line[s1+1:], " ")
 	if s1 < 0 || s2 < 0 {
@@ -127,9 +127,9 @@ func readRequest(b *bufio.Reader, deleteHostHeader bool) (req *Request, err erro
 	if !ok {
 		return nil, &badStringError{"malformed MSRP request", s}
 	}
-	/*if ok = ParseMSRPVersion(req.Proto); !ok {
+	if req.Proto != "MSRP" {
 		return nil, &badStringError{"malformed MSRP version", req.Proto}
-	}*/
+	}
 	// Subsequent lines: Key: value.
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
